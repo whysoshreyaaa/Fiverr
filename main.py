@@ -182,7 +182,7 @@ async def load_pdf_mappings():
     try:
         # Load unique_id mappings
         response = s3_client.get_object(
-            Bucket=S3_BUCKET,
+            Bucket=s3_bucket_name,
             Key="pdf-cleaned/unique_id.txt"
         )
         content = response['Body'].read().decode('utf-8').splitlines()
@@ -195,7 +195,7 @@ async def load_pdf_mappings():
         # Build filename-to-S3-key mapping
         paginator = s3_client.get_paginator('list_objects_v2')
         operation_parameters = {
-            'Bucket': S3_BUCKET,
+            'Bucket': s3_bucket_name,
             'Prefix': 'pdf-cleaned/'
         }
         
