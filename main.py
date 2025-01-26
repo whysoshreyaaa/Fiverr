@@ -49,7 +49,7 @@ class ElasticsearchClient_SSLConnection:
                 hosts=[{"host": url, "port": port, "scheme": "https"}],
                 http_auth=("elastic", "HmtoTvKY"),
                 verify_certs=True,
-                ca_certs="/Users/billionaire/Downloads/ca_certificate.pem",
+                ca_certs="/Users/billionaire/Fiverr/ca_certificate.pem",
             )
             if not self.conn.ping():
                 logger.error("Ping failed - using connection anyway")
