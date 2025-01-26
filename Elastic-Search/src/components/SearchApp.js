@@ -14,6 +14,8 @@ const SearchApp = () => {
   const [totalResults, setTotalResults] = React.useState(0);
   const [hasSearched, setHasSearched] = React.useState(false);
   const [selectedSummary, setSelectedSummary] = React.useState(null);
+  const [pdfUrl, setPdfUrl] = React.useState(null);
+  const [sortOrder, setSortOrder] = React.useState('desc');
   const [facets, setFacets] = React.useState({
     years: { buckets: [] },
     courts: { buckets: [] },
@@ -41,6 +43,7 @@ const SearchApp = () => {
         q: query,
         page: currentPage.toString(),
         size: resultsPerPage.toString(),
+        sortOrder: sortOrder
       });
 
       if (yearFrom) params.append('yearFrom', yearFrom);
@@ -96,7 +99,7 @@ const SearchApp = () => {
     if (hasSearched) {
       fetchResults();
     }
-  }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults]);
+  }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults,sortOrder]);
 
   const fetchSuggestions = React.useCallback(async (searchQuery) => {
     try {
@@ -108,7 +111,7 @@ const SearchApp = () => {
       setSuggestions([]);
     }
   }, []);
-
+  
   const debouncedFetchSuggestions = React.useCallback((searchQuery) => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -141,6 +144,17 @@ const SearchApp = () => {
     if (query.trim()) {
       setCurrentPage(1);
       setHasSearched(true);
+    }
+  };
+
+  const handlePdfView = async (docId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/get-pdf-url?doc_id=${docId}`);
+      const data = await response.json();
+      setPdfUrl(data.url);
+    } catch (error) {
+      console.error('Failed to load PDF:', error);
+      alert('PDF not found');
     }
   };
 
@@ -242,49 +256,65 @@ const SearchApp = () => {
             </div>
           )}
         </form>
-
         <div className="mb-6 bg-white p-4 rounded-lg shadow">
-          <h2 className="font-semibold mb-4 text-gray-700">Filters</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-600">Year Range</label>
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  placeholder="From"
-                  value={yearFrom}
-                  onChange={handleYearChange(setYearFrom)}
-                  min="1900"
-                  max={new Date().getFullYear()}
-                  className="w-full p-2 border rounded text-gray-700"
-                />
-                <input
-                  type="number"
-                  placeholder="To"
-                  value={yearTo}
-                  onChange={handleYearChange(setYearTo)}
-                  min="1900"
-                  max={new Date().getFullYear()}
-                  className="w-full p-2 border rounded text-gray-700"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-2 text-gray-600">Court</label>
-              <select
-                value={court}
-                onChange={handleCourtChange}
+        <h2 className="font-semibold mb-4 text-gray-700">Filters</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* Year range inputs - keep existing */}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-600">Year Range</label>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                type="number"
+                placeholder="From"
+                value={yearFrom}
+                onChange={handleYearChange(setYearFrom)}
+                min="1900"
+                max={new Date().getFullYear()}
                 className="w-full p-2 border rounded text-gray-700"
-              >
-                <option value="">All Courts</option>
-                <option value="SC">Supreme Court</option>
-                <option value="HC">High Court</option>
-              </select>
+              />
+              <input
+                type="number"
+                placeholder="To"
+                value={yearTo}
+                onChange={handleYearChange(setYearTo)}
+                min="1900"
+                max={new Date().getFullYear()}
+                className="w-full p-2 border rounded text-gray-700"
+              />
             </div>
           </div>
-        </div>
 
+          {/* Court select - keep existing */}
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-600">Court</label>
+            <select
+              value={court}
+              onChange={handleCourtChange}
+              className="w-full p-2 border rounded text-gray-700"
+            >
+              <option value="">All Courts</option>
+              <option value="SC">Supreme Court</option>
+              <option value="HC">High Court</option>
+            </select>
+          </div>
+
+          {/* ▼▼▼ Add this new sort control ▼▼▼ */}
+          <div>
+            <label className="block text-sm font-medium mb-2 text-gray-600">Sort Year</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => {
+                setSortOrder(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full p-2 border rounded text-gray-700"
+            >
+              <option value="desc">Newest First</option>
+              <option value="asc">Oldest First</option>
+            </select>
+          </div>
+        </div>
+      </div>
         {loading ? (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-500"></div>
@@ -320,13 +350,26 @@ const SearchApp = () => {
                       ))}
                     </div>
                   </div>
-                )}              
+                )}
+
+                {/* ▼▼▼ Move PDF Link OUTSIDE Tags Block ▼▼▼ */}
+                {result.id && (
+                  <button
+                    onClick={() => handlePdfView(result.id)}
+                    className="text-blue-600 hover:text-blue-800 text-sm mt-2 block"
+                  >
+                    View PDF 
+                  </button>
+                )}
+
+
+                            
                 {result.JudgmentSummary && (
                   <button
                     onClick={() => setSelectedSummary(result.JudgmentSummary)}
                     className="text-blue-600 hover:text-blue-800 text-sm mt-2 block"
                   >
-                    View Detailed Summary →
+                    View Detailed Summary 
                   </button>
                 )}
               </div>
@@ -384,8 +427,8 @@ const SearchApp = () => {
                 </button>
               </div>
               
-              {/* Summary Content */}
               <div className="space-y-4 text-gray-700">
+                {/* Basic Information */}
                 {selectedSummary.JudgmentName && (
                   <div>
                     <h4 className="font-semibold mb-1">Case Name</h4>
@@ -393,6 +436,8 @@ const SearchApp = () => {
                   </div>
                 )}
 
+
+                {/* Brief Section */}
                 {selectedSummary.Brief?.Introduction && (
                   <div>
                     <h4 className="font-semibold mb-1">Introduction</h4>
@@ -400,6 +445,7 @@ const SearchApp = () => {
                   </div>
                 )}
 
+                {/* Background Section */}
                 {selectedSummary.Background?.Context && (
                   <div>
                     <h4 className="font-semibold mb-1">Background Context</h4>
@@ -407,6 +453,14 @@ const SearchApp = () => {
                   </div>
                 )}
 
+                {selectedSummary.Background?.FactualMatrix && (
+                  <div>
+                    <h4 className="font-semibold mb-1">Factual Matrix</h4>
+                    <p>{selectedSummary.Background.FactualMatrix}</p>
+                  </div>
+                )}
+
+                {/* Key Issues */}
                 {selectedSummary.KeyIssues?.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-1">Key Issues</h4>
@@ -418,13 +472,106 @@ const SearchApp = () => {
                   </div>
                 )}
 
+                {/* Legal Propositions */}
+                {selectedSummary.LegalPropositions?.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-1">Legal Propositions</h4>
+                    <ol className="list-decimal pl-6">
+                      {selectedSummary.LegalPropositions.map((prop, idx) => (
+                        <li key={idx} className="mb-2">
+                          <p className="font-medium">{prop.PropositionDescription}</p>
+                          {prop.Principle && <p className="text-sm text-gray-600">Principle: {prop.Principle}</p>}
+                          {prop.Application && <p className="text-sm text-gray-600">Application: {prop.Application}</p>}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                {/* Arguments Section */}
+                {selectedSummary.Arguments && (
+                  <div>
+                    <h4 className="font-semibold mb-1">Arguments</h4>
+                    <div className="space-y-4">
+                      {selectedSummary.Arguments.Petitioner && (
+                        <div>
+                          <h5 className="font-medium mb-1">Petitioner's Arguments</h5>
+                          <ul className="list-disc pl-6">
+                            {selectedSummary.Arguments.Petitioner.MainArguments?.map((arg, idx) => (
+                              <li key={idx}>{arg}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {selectedSummary.Arguments.Respondent && (
+                        <div>
+                          <h5 className="font-medium mb-1">Respondent's Arguments</h5>
+                          <ul className="list-disc pl-6">
+                            {selectedSummary.Arguments.Respondent.MainArguments?.map((arg, idx) => (
+                              <li key={idx}>{arg}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Judgment Details */}
+                {selectedSummary.JudgmentDetails?.CourtRuling && (
+                  <div>
+                    <h4 className="font-semibold mb-1">Court Ruling</h4>
+                    <p>{selectedSummary.JudgmentDetails.CourtRuling}</p>
+                  </div>
+                )}
+
+                {selectedSummary.JudgmentDetails?.Reasoning && (
+                  <div>
+                    <h4 className="font-semibold mb-1">Reasoning</h4>
+                    <p>{selectedSummary.JudgmentDetails.Reasoning}</p>
+                  </div>
+                )}
+
+                {/* Conclusion Section */}
                 {selectedSummary.Conclusion?.Summary && (
                   <div>
                     <h4 className="font-semibold mb-1">Conclusion</h4>
                     <p>{selectedSummary.Conclusion.Summary}</p>
                   </div>
                 )}
+
+                {selectedSummary.Conclusion?.KeyTakeaways && (
+                  <div>
+                    <h4 className="font-semibold mb-1">Key Takeaways</h4>
+                    <ul className="list-disc pl-6">
+                      {selectedSummary.Conclusion.KeyTakeaways.map((takeaway, idx) => (
+                        <li key={idx}>{takeaway}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
+            </div>
+          </div>
+        )}
+        {pdfUrl && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold">PDF Viewer</h3>
+                <button 
+                  onClick={() => setPdfUrl(null)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl"
+                >
+                  &times;
+                </button>
+              </div>
+              <iframe 
+                src={pdfUrl} 
+                className="w-full h-[80vh] border-none"
+                title="PDF document"
+              />
             </div>
           </div>
         )}
