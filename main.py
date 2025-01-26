@@ -27,10 +27,10 @@ app.add_middleware(
 load_dotenv()
 
 # Access the environment variables
-aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
-aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
-aws_region = os.getenv("AWS_REGION")
-s3_bucket_name = os.getenv("S3_BUCKET_NAME")
+aws_access_key_id = os.getenv("AWS_ACCESS_KEY")
+aws_secret_access_key = os.getenv("AWS_SECRET_KEY")
+aws_region = os.getenv("region_name")
+s3_bucket_name = os.getenv("S3_BUCKET")
 
 # Initialize the S3 client with credentials
 s3_client = boto3.client(
