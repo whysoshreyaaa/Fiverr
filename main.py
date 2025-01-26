@@ -24,7 +24,7 @@ app.add_middleware(
 )
 
 # Load environment variables from .env file
-load_dotenv()
+
 
 # Access the environment variables
 aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
