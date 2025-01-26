@@ -4,3 +4,4 @@ elasticsearch
 fastapi
 pydantic
 uvicorn
+python-dotenv
