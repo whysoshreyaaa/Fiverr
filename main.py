@@ -1,3 +1,5 @@
+import boto3
+from botocore.exceptions import ClientError
 from elasticsearch import Elasticsearch
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,6 +43,19 @@ try:
 except Exception as e:
     es_client = None
 
+AWS_ACCESS_KEY = "AKIAS2VS37UP2YKJSA5X"
+AWS_SECRET_KEY = "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"
+S3_BUCKET = "icc-cases"
+
+s3_client = boto3.client(
+    's3',
+    aws_access_key_id=AWS_ACCESS_KEY,
+    aws_secret_access_key=AWS_SECRET_KEY
+)    
+
+pdf_mappings = {}
+filename_to_key = {}
+
 class SearchResponse(BaseModel):
     total: int
     results: List[dict]
@@ -53,7 +68,8 @@ async def search(
     size: int = Query(10, ge=1, le=100),
     yearFrom: Optional[str] = None,
     yearTo: Optional[str] = None,
-    court: Optional[str] = None
+    court: Optional[str] = None,
+    sortOrder: str = Query("desc", regex="^(asc|desc)$") 
 ):
     if not es_client:
         raise HTTPException(status_code=500, detail="Elasticsearch connection failed")
@@ -118,7 +134,10 @@ async def search(
 
         response = es_client.conn.search(
             index="judgements-index",
-            body={"query": query, "aggs": aggs, "from": from_value, "size": size}
+            body={"query": query, "aggs": aggs, "from": from_value, "size": size, "track_total_hits": True, "sort": [
+                {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}},
+                {"_id": "asc"}  # Secondary sort for stability
+            ]}
         )
 
         # Process results
@@ -148,6 +167,74 @@ async def search(
         logger.error(f"Search failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.on_event("startup")
+async def load_pdf_mappings():
+    global filename_to_key  # Add this
+    try:
+        # Load unique_id mappings
+        response = s3_client.get_object(
+            Bucket=S3_BUCKET,
+            Key="pdf-cleaned/unique_id.txt"
+        )
+        content = response['Body'].read().decode('utf-8').splitlines()
+        
+        for line in content:
+            if '-' in line:
+                doc_id, filename = line.split('-', 1)
+                pdf_mappings[doc_id.strip()] = filename.strip()
+        
+        # Build filename-to-S3-key mapping
+        paginator = s3_client.get_paginator('list_objects_v2')
+        operation_parameters = {
+            'Bucket': S3_BUCKET,
+            'Prefix': 'pdf-cleaned/'
+        }
+        
+        for page in paginator.paginate(**operation_parameters):
+            if 'Contents' in page:
+                for obj in page['Contents']:
+                    key = obj['Key']
+                    if key.endswith('.pdf'):
+                        filename = key.split('/')[-1]
+                        filename_to_key[filename] = key
+        
+        logger.info(f"Loaded {len(pdf_mappings)} PDF mappings and {len(filename_to_key)} S3 keys")
+        
+    except Exception as e:
+        logger.error(f"Startup error: {e}")
+        raise
+
+@app.get("/api/get-pdf-url")
+async def get_pdf_url(doc_id: str):
+    try:
+        pdf_filename = pdf_mappings.get(doc_id)
+        if not pdf_filename:
+            raise HTTPException(status_code=404, detail="PDF mapping not found")
+        
+        # Get full S3 key from filename mapping
+        pdf_key = filename_to_key.get(pdf_filename)
+        if not pdf_key:
+            raise HTTPException(status_code=404, detail="PDF not found in S3")
+        
+        url = s3_client.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': S3_BUCKET,
+                'Key': pdf_key,
+                'ResponseContentDisposition': 'inline',  # Force browser to display
+                'ResponseContentType': 'application/pdf'  # Explicit MIME type
+            },
+            ExpiresIn=3600
+        )
+        return {"url": url}
+        
+    except ClientError as e:
+        logger.error(f"S3 error: {e}")
+        raise HTTPException(status_code=404, detail="PDF not found")
+    except Exception as e:
+        logger.error(f"PDF fetch error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
 @app.get("/api/autocomplete")
 async def autocomplete(q: str = Query(...)):
     try:
