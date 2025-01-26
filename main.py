@@ -228,7 +228,7 @@ async def get_pdf_url(doc_id: str):
         url = s3_client.generate_presigned_url(
             'get_object',
             Params={
-                'Bucket': S3_BUCKET,
+                'Bucket': s3_bucket_name,
                 'Key': pdf_key,
                 'ResponseContentDisposition': 'inline',  # Force browser to display
                 'ResponseContentType': 'application/pdf'  # Explicit MIME type
