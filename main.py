@@ -6,6 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 import logging
+from dotenv import load_dotenv
+import os
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,6 +21,23 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+)
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the environment variables
+aws_access_key_id = os.getenv("AWS_ACCESS_KEY_ID")
+aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+aws_region = os.getenv("AWS_REGION")
+s3_bucket_name = os.getenv("S3_BUCKET_NAME")
+
+# Initialize the S3 client with credentials
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=aws_access_key_id,
+    aws_secret_access_key=aws_secret_access_key,
+    region_name=aws_region
 )
 
 class ElasticsearchClient_SSLConnection:
@@ -41,18 +60,7 @@ class ElasticsearchClient_SSLConnection:
 try:
     es_client = ElasticsearchClient_SSLConnection()
 except Exception as e:
-    es_client = None
-
-AWS_ACCESS_KEY = "AKIAS2VS37UP2YKJSA5X"
-AWS_SECRET_KEY = "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"
-S3_BUCKET = "icc-cases"
-
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=AWS_ACCESS_KEY,
-    aws_secret_access_key=AWS_SECRET_KEY,
-    region_name="ap-south-1"
-)    
+    es_client = None  
 
 pdf_mappings = {}
 filename_to_key = {}
