@@ -18,10 +18,15 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://elastic-search-react-u30628.vm.elestio.app"],
+    allow_origins=[
+        "https://elastic-search-react-u30628.vm.elestio.app",
+        "https://elastic-search-python-u30628.vm.elestio.app"
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"],
+    max_age=3600,
 )
 
 # Load environment variables from .env file
@@ -70,6 +75,22 @@ class SearchResponse(BaseModel):
     total: int
     results: List[dict]
     facets: dict
+
+@app.middleware("http")
+async def add_cors_headers(request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Origin"] = "https://elastic-search-react-u30628.vm.elestio.app"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.debug(f"Incoming request: {request.method} {request.url}")
+    logger.debug(f"Headers: {request.headers}")
+    response = await call_next(request)
+    logger.debug(f"Response status: {response.status_code}")
+    logger.debug(f"Response headers: {response.headers}")
+    return response
 
 @app.get("/api/search", response_model=SearchResponse)
 async def search(
