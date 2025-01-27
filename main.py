@@ -1,7 +1,8 @@
 import boto3
 from botocore.exceptions import ClientError
 from elasticsearch import Elasticsearch
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
@@ -75,6 +76,31 @@ class SearchResponse(BaseModel):
     total: int
     results: List[dict]
     facets: dict
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    cors_headers = {
+        "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "*",
+    }
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=cors_headers
+    )
+
+@app.exception_handler(HTTPException)
+async def cors_exception_handler(request: Request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers={
+            "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
+            "Access-Control-Allow-Credentials": "true",
+        },
+    )
 
 @app.middleware("http")
 async def add_cors_headers(request, call_next):
