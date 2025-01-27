@@ -1,5 +1,5 @@
 import React from 'react';
-import {  ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const API_BASE_URL = 'https://elastic-search-python-u30628.vm.elestio.app';
 
@@ -55,10 +55,6 @@ const SearchApp = () => {
 
       if (!abortControllerRef.current.signal.aborted) {
         setResults(data.results || []);
-        
-        // Process facets to ensure SC/HC exist with zero counts
-
-
         setTotalResults(data.total || 0);
       }
     } catch (error) {
