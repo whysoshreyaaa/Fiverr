@@ -188,9 +188,12 @@ async def load_pdf_mappings():
         content = response['Body'].read().decode('utf-8').splitlines()
         
         for line in content:
-            if '-' in line:
-                doc_id, filename = line.split('-', 1)
-                pdf_mappings[doc_id.strip()] = filename.strip()
+            try:
+                if '-' in line:
+                    doc_id, filename = line.split('-', 1)
+                    pdf_mappings[doc_id.strip()] = filename.strip()
+            except Exception as e:
+                logger.error(f"Skipping invalid line: {line} | Error: {e}")
         
         # Build filename-to-S3-key mapping
         paginator = s3_client.get_paginator('list_objects_v2')
@@ -260,6 +263,7 @@ async def autocomplete(q: str = Query(...)):
                         }
                     }
                 }
+             request_timeout=30   
             }
         )
         return [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
