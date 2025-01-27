@@ -1,7 +1,7 @@
 import React from 'react';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import {  ChevronLeft, ChevronRight } from 'lucide-react';
 
-const API_BASE_URL = 'https://elastic-search-python-u30628.vm.elestio.app/';
+const API_BASE_URL = 'https://elastic-search-python-u30628.vm.elestio.app';
 
 const SearchApp = () => {
   const [query, setQuery] = React.useState('');
@@ -16,10 +16,6 @@ const SearchApp = () => {
   const [selectedSummary, setSelectedSummary] = React.useState(null);
   const [pdfUrl, setPdfUrl] = React.useState(null);
   const [sortOrder, setSortOrder] = React.useState('desc');
-  const [facets, setFacets] = React.useState({
-    years: { buckets: [] },
-    courts: { buckets: [] },
-  });
   const [suggestions, setSuggestions] = React.useState([]);
 
   const abortControllerRef = React.useRef(null);
@@ -61,24 +57,7 @@ const SearchApp = () => {
         setResults(data.results || []);
         
         // Process facets to ensure SC/HC exist with zero counts
-        const processedCourts = {
-          buckets: [
-            { key: 'SC', doc_count: 0 },
-            { key: 'HC', doc_count: 0 },
-            ...(data.facets?.courts?.buckets || [])
-          ].reduce((acc, curr) => {
-            // Merge duplicate keys and preserve order
-            const existing = acc.find(i => i.key === curr.key);
-            if (!existing) acc.push(curr);
-            return acc;
-          }, [])
-          .filter(b => b.key === 'SC' || b.key === 'HC')
-        };
 
-        setFacets({
-          years: data.facets?.years || { buckets: [] },
-          courts: processedCourts
-        });
 
         setTotalResults(data.total || 0);
       }
@@ -93,13 +72,13 @@ const SearchApp = () => {
         setLoading(false);
       }
     }
-  }, [query, currentPage, yearFrom, yearTo, court]);
+  }, [query, currentPage, yearFrom, yearTo, court, sortOrder ]);
 
   React.useEffect(() => {
     if (hasSearched) {
       fetchResults();
     }
-  }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults,sortOrder]);
+  }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults, sortOrder]);
 
   const fetchSuggestions = React.useCallback(async (searchQuery) => {
     try {
