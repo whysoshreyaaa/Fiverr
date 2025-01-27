@@ -72,7 +72,7 @@ const SearchApp = () => {
         setLoading(false);
       }
     }
-  }, [query, currentPage, yearFrom, yearTo, court]);
+  }, [query, currentPage, yearFrom, yearTo, court, sortOrder ]);
 
   React.useEffect(() => {
     if (hasSearched) {
