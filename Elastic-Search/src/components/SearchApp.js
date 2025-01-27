@@ -3,12 +3,6 @@ import {  ChevronLeft, ChevronRight } from 'lucide-react';
 
 const API_BASE_URL = 'https://elastic-search-python-u30628.vm.elestio.app';
 
-const ws = new WebSocket('wss://elastic-search-react-u30628.vm.elestio.app:3000/ws', {
-  headers: {
-    'Origin': 'https://elastic-search-react-u30628.vm.elestio.app'
-  }
-});
-
 const SearchApp = () => {
   const [query, setQuery] = React.useState('');
   const [results, setResults] = React.useState([]);
