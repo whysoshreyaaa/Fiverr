@@ -10,6 +10,7 @@ import logging
 from dotenv import load_dotenv
 import os
 import uvicorn
+from fastapi import WebSocket
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -319,6 +320,13 @@ async def autocomplete(q: str = Query(...)):
         return [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
     except Exception as e:
         return []
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
