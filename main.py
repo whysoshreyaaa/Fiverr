@@ -262,9 +262,9 @@ async def autocomplete(q: str = Query(...)):
                             "size": 5
                         }
                     }
-                }
-             request_timeout=30   
-            }
+                }  
+            },
+            request_timeout=30 
         )
         return [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
     except Exception as e:
