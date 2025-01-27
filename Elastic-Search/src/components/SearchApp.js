@@ -57,19 +57,7 @@ const SearchApp = () => {
         setResults(data.results || []);
         
         // Process facets to ensure SC/HC exist with zero counts
-        const processedCourts = {
-          buckets: [
-            { key: 'SC', doc_count: 0 },
-            { key: 'HC', doc_count: 0 },
-            ...(data.facets?.courts?.buckets || [])
-          ].reduce((acc, curr) => {
-            // Merge duplicate keys and preserve order
-            const existing = acc.find(i => i.key === curr.key);
-            if (!existing) acc.push(curr);
-            return acc;
-          }, [])
-          .filter(b => b.key === 'SC' || b.key === 'HC')
-        };
+
 
         setTotalResults(data.total || 0);
       }
