@@ -21,7 +21,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://elastic-search-react-u30628.vm.elestio.app",
-        "https://elastic-search-python-u30628.vm.elestio.app"
+        "https://elastic-search-python-u30628.vm.elestio.app",
+        "http://localhost:3000" 
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
