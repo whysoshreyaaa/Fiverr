@@ -25,7 +25,7 @@ app.add_middleware(
         "http://localhost:3000" 
     ],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
     allow_websockets=True,
