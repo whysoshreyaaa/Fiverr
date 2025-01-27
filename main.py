@@ -8,6 +8,7 @@ from pydantic import BaseModel
 import logging
 from dotenv import load_dotenv
 import os
+import uvicorn
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
@@ -269,3 +270,6 @@ async def autocomplete(q: str = Query(...)):
         return [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
     except Exception as e:
         return []
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
