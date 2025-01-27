@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import {  ChevronLeft, ChevronRight } from 'lucide-react';
 
 const API_BASE_URL = 'https://elastic-search-python-u30628.vm.elestio.app';
 
@@ -16,10 +16,6 @@ const SearchApp = () => {
   const [selectedSummary, setSelectedSummary] = React.useState(null);
   const [pdfUrl, setPdfUrl] = React.useState(null);
   const [sortOrder, setSortOrder] = React.useState('desc');
-  const [facets, setFacets] = React.useState({
-    years: { buckets: [] },
-    courts: { buckets: [] },
-  });
   const [suggestions, setSuggestions] = React.useState([]);
 
   const abortControllerRef = React.useRef(null);
@@ -75,11 +71,6 @@ const SearchApp = () => {
           .filter(b => b.key === 'SC' || b.key === 'HC')
         };
 
-        setFacets({
-          years: data.facets?.years || { buckets: [] },
-          courts: processedCourts
-        });
-
         setTotalResults(data.total || 0);
       }
     } catch (error) {
@@ -99,7 +90,7 @@ const SearchApp = () => {
     if (hasSearched) {
       fetchResults();
     }
-  }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults,sortOrder]);
+  }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults, sortOrder]);
 
   const fetchSuggestions = React.useCallback(async (searchQuery) => {
     try {
