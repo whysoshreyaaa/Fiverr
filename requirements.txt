@@ -4,4 +4,4 @@ fastapi
 pydantic
 uvicorn
 python-dotenv
-elasticsearch
+elasticsearch==7.17.12
