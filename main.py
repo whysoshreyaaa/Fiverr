@@ -17,6 +17,13 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://elastic-search-react-u30628.vm.elestio.app"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load environment variables from .env file
 load_dotenv()
