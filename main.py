@@ -286,22 +286,44 @@ async def get_pdf_url(doc_id: str):
         logger.error(f"PDF fetch error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
+# Correct the autocomplete endpoint
 @app.get("/api/autocomplete")
 async def autocomplete(q: str = Query(...)):
+    cors_headers = {
+        "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "*",
+    }
     if not es_client:
         raise HTTPException(
             status_code=500,
-            detail="Elasticsearch not connected"
+            detail="Elasticsearch not connected",
+            headers=cors_headers
         )
     try:
-        response = es_client.conn.search(...)
+        # Example suggest query (adjust according to your Elasticsearch setup)
+        response = es_client.conn.search(
+            index="judgements-index",
+            body={
+                "suggest": {
+                    "judgement-suggest": {
+                        "prefix": q,
+                        "completion": {
+                            "field": "suggest_field"  # Replace with your completion field
+                        }
+                    }
+                }
+            }
+        )
         suggestions = [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
-        return suggestions  # Simple return, middleware adds headers
+        return JSONResponse(content=suggestions, headers=cors_headers)
     except Exception as e:
         logger.error(f"Autocomplete failed: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Autocomplete failed"
+            detail="Autocomplete failed",
+            headers=cors_headers
         )
 
 @app.get("/", tags=["Health Check"])
