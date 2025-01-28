@@ -18,17 +18,13 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI()
+# Update CORSMiddleware configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://elastic-search-react-u30628.vm.elestio.app",
-        "https://elastic-search-python-u30628.vm.elestio.app",
-        "http://localhost:3000" 
-    ],
+    allow_origin_regex=r"^(https://(elastic-search-react-u30628\.vm\.elestio\.app|elastic-search-python-u30628\.vm\.elestio\.app)|http://localhost:3000)$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    # Remove this line: allow_websockets=True,
     expose_headers=["*"],
     max_age=3600,
 )
