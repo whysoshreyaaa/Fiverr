@@ -98,18 +98,12 @@ class SearchResponse(BaseModel):
     results: List[dict]
     facets: dict
 
+# Simplified exception handler (remove manual CORS headers)
 @app.exception_handler(HTTPException)
 async def unified_exception_handler(request: Request, exc: HTTPException):
-    cors_headers = {
-        "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Methods": "*",
-        "Access-Control-Allow-Headers": "*",
-    }
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.detail},
-        headers=cors_headers
+        content={"detail": exc.detail}
     )
 
 @app.get("/api/search", response_model=SearchResponse)
