@@ -70,7 +70,8 @@ class ElasticsearchClient_SSLConnection:
             hosts=[{"host": url, "port": port, "scheme": "https"}],
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
-            ca_certs="/app/certs/ca_certificate.pem",  # Update path if needed
+            ca_certs="/app/certs/ca_certificate.pem",
+            headers={"Content-Type": "application/json"}# Update path if needed
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
