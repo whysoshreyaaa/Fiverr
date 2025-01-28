@@ -291,26 +291,22 @@ async def get_pdf_url(doc_id: str):
     
 @app.get("/api/autocomplete")
 async def autocomplete(q: str = Query(...)):
-    try:
-        response = es_client.conn.search(
-            index="judgements-index",
-            body={
-                "suggest": {
-                    "judgement-suggest": {
-                        "prefix": q,
-                        "completion": {
-                            "field": "suggest",
-                            "skip_duplicates": True,
-                            "size": 5
-                        }
-                    }
-                }  
-            },
-            request_timeout=30 
+    if not es_client:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Elasticsearch not connected"},
+            headers=cors_headers  # Ensure CORS headers are added
         )
+    try:
+        response = es_client.conn.search(...)
         return [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
     except Exception as e:
-        return []
+        logger.error(f"Autocomplete failed: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Autocomplete failed"},
+            headers=cors_headers
+        )
 
 @app.get("/", tags=["Health Check"])
 async def root():
