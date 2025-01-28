@@ -3,7 +3,6 @@ from botocore.exceptions import ClientError
 from elasticsearch import Elasticsearch
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 import logging
@@ -18,18 +17,6 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI()
-# Update CORSMiddleware to use explicit origins instead of regex
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "https://elastic-search-react-u30628.vm.elestio.app",
-        "http://localhost:3000"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-    expose_headers=["*"]
-)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -48,15 +35,8 @@ s3_client = boto3.client(
     region_name=aws_region
 )
 
-# In main-4.py
-@app.exception_handler(Exception)  # Catch all exceptions
+@app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-#    cors_headers = {
-#        "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
-#        "Access-Control-Allow-Credentials": "true",
-#        "Access-Control-Allow-Methods": "*",
-#        "Access-Control-Allow-Headers": "*",
-#    }
     if isinstance(exc, HTTPException):
         status_code = exc.status_code
         detail = exc.detail
@@ -67,10 +47,8 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=status_code,
         content={"detail": detail},
-      #  headers=cors_headers
     )
 
-# Replace the existing ElasticsearchClient_SSLConnection class with this:
 class ElasticsearchClient_SSLConnection:
     def __init__(self):
         url = "elasticsearch-190712-0.cloudclusters.net"
@@ -80,8 +58,8 @@ class ElasticsearchClient_SSLConnection:
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
             ca_certs="certs/ca_certificate.pem",
-            headers={"Accept": "application/json"},  # Force JSON response
-            meta_header=False  # Disable ES 8.x compatibility headers
+            headers={"Accept": "application/json"},
+            meta_header=False
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
@@ -98,7 +76,6 @@ class SearchResponse(BaseModel):
     results: List[dict]
     facets: dict
 
-# Simplified exception handler (remove manual CORS headers)
 @app.exception_handler(HTTPException)
 async def unified_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
@@ -123,7 +100,6 @@ async def search(
         from_value = (page - 1) * size
         must_conditions = []
 
-        # Search query
         if q:
             must_conditions.append({
                 "multi_match": {
@@ -132,19 +108,18 @@ async def search(
                 }
             })
 
-        # Year range filter
         if yearFrom or yearTo:
             year_range = {}
             if yearFrom:
-                year_range["gte"] = str(yearFrom).zfill(4)  # Ensure 4-digit format (e.g., "1950")
+                year_range["gte"] = str(yearFrom).zfill(4)
             if yearTo:
                 year_range["lte"] = str(yearTo).zfill(4)
             must_conditions.append({
                 "range": {
-                    "JudgmentMetadata.CaseDetails.JudgmentYear.keyword": year_range  # Correct nested path
+                    "JudgmentMetadata.CaseDetails.JudgmentYear.keyword": year_range
                 }
             })
-        # Court filter using script
+
         if court in ["SC", "HC"]:
             must_conditions.append({
                 "script": {
@@ -157,7 +132,6 @@ async def search(
 
         query = {"bool": {"must": must_conditions or [{"match_all": {}}]}}
 
-        # Aggregations
         aggs = {
             "years": {
                 "terms": {
@@ -172,7 +146,7 @@ async def search(
                         "source": "doc['_id'].value.substring(0,2)",
                         "lang": "painless"
                     },
-                    "size": 50  # Increased from 2 to capture all court types
+                    "size": 50
                 }
             }
         }
@@ -181,14 +155,12 @@ async def search(
             index="judgements-index",
             body={"query": query, "aggs": aggs, "from": from_value, "size": size, "track_total_hits": True, "sort": [
                 {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}},
-                {"_id": "asc"}  # Secondary sort for stability
+                {"_id": "asc"}
             ]}
         )
 
-        # Process results
         results = [{"id": hit["_id"], **hit["_source"]} for hit in response["hits"]["hits"]]
         
-        # Process court facets
         court_buckets = [
             {"key": "SC", "doc_count": 0},
             {"key": "HC", "doc_count": 0}
@@ -214,9 +186,8 @@ async def search(
 
 @app.on_event("startup")
 async def load_pdf_mappings():
-    global filename_to_key  # Add this
+    global filename_to_key
     try:
-        # Load unique_id mappings
         response = s3_client.get_object(
             Bucket=s3_bucket_name,
             Key="pdf-cleaned/unique_id.txt"
@@ -231,7 +202,6 @@ async def load_pdf_mappings():
             except Exception as e:
                 logger.error(f"Skipping invalid line: {line} | Error: {e}")
         
-        # Build filename-to-S3-key mapping
         paginator = s3_client.get_paginator('list_objects_v2')
         operation_parameters = {
             'Bucket': s3_bucket_name,
@@ -259,7 +229,6 @@ async def get_pdf_url(doc_id: str):
         if not pdf_filename:
             raise HTTPException(status_code=404, detail="PDF mapping not found")
         
-        # Get full S3 key from filename mapping
         pdf_key = filename_to_key.get(pdf_filename)
         if not pdf_key:
             raise HTTPException(status_code=404, detail="PDF not found in S3")
@@ -269,8 +238,8 @@ async def get_pdf_url(doc_id: str):
             Params={
                 'Bucket': s3_bucket_name,
                 'Key': pdf_key,
-                'ResponseContentDisposition': 'inline',  # Force browser to display
-                'ResponseContentType': 'application/pdf'  # Explicit MIME type
+                'ResponseContentDisposition': 'inline',
+                'ResponseContentType': 'application/pdf'
             },
             ExpiresIn=3600
         )
@@ -285,9 +254,6 @@ async def get_pdf_url(doc_id: str):
 
 @app.get("/", tags=["Health Check"])
 async def root():
-    """
-    Root endpoint for health checks and service verification
-    """
     return {
         "message": "Judgment Search API is running",
         "status": "healthy",
