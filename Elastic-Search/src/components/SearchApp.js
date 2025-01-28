@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-const API_BASE_URL = 'https://elastic-search-python-u30628.vm.elestio.app';
+const API_BASE_URL = 'https://elastic-search-python-u30628.vm.elestio.app/';
 
 const SearchApp = () => {
   const [query, setQuery] = React.useState('');
