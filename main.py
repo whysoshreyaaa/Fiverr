@@ -71,6 +71,8 @@ class ElasticsearchClient_SSLConnection:
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
             ca_certs="/app/certs/ca_certificate.pem",
+            ssl_certfile="/app/certs/client-certificate.pem",
+            ssl_keyfile="/app/certs/client-key.pem",
             compatibility_mode=False,
             headers={"Content-Type": "application/json"}# Update path if needed
         )
