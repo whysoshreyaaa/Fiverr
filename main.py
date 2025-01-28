@@ -18,15 +18,17 @@ logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI()
-# Update CORSMiddleware configuration
+# Update CORSMiddleware to use explicit origins instead of regex
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"^(https://(elastic-search-react-u30628\.vm\.elestio\.app|elastic-search-python-u30628\.vm\.elestio\.app)|http://localhost:3000)$",
+    allow_origins=[
+        "https://elastic-search-react-u30628.vm.elestio.app",
+        "http://localhost:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    expose_headers=["*"],
-    max_age=3600,
+    expose_headers=["*"]
 )
 
 # Load environment variables from .env file
@@ -49,12 +51,12 @@ s3_client = boto3.client(
 # In main-4.py
 @app.exception_handler(Exception)  # Catch all exceptions
 async def global_exception_handler(request: Request, exc: Exception):
-    cors_headers = {
-        "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
-        "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Methods": "*",
-        "Access-Control-Allow-Headers": "*",
-    }
+#    cors_headers = {
+#        "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
+#        "Access-Control-Allow-Credentials": "true",
+#        "Access-Control-Allow-Methods": "*",
+#        "Access-Control-Allow-Headers": "*",
+#    }
     if isinstance(exc, HTTPException):
         status_code = exc.status_code
         detail = exc.detail
