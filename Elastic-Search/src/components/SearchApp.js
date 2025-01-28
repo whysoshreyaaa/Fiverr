@@ -16,10 +16,8 @@ const SearchApp = () => {
   const [selectedSummary, setSelectedSummary] = React.useState(null);
   const [pdfUrl, setPdfUrl] = React.useState(null);
   const [sortOrder, setSortOrder] = React.useState('desc');
-//  const [suggestions, setSuggestions] = React.useState([]);
 
   const abortControllerRef = React.useRef(null);
-//  const searchTimeoutRef = React.useRef(null);
   const searchInputRef = React.useRef(null);
   
   const resultsPerPage = 10;
@@ -76,31 +74,6 @@ const SearchApp = () => {
     }
   }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults, sortOrder]);
 
-  /* const fetchSuggestions = React.useCallback(async (searchQuery) => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/autocomplete?q=${searchQuery}`);
-      const data = await response.json();
-      setSuggestions(data);
-    } catch (error) {
-      console.error('Autocomplete error:', error);
-      setSuggestions([]);
-    }
-  }, []);
-  
-  const debouncedFetchSuggestions = React.useCallback((searchQuery) => {
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(() => {
-      if (searchQuery.length > 2) {
-        fetchSuggestions(searchQuery);
-      } else {
-        setSuggestions([]);
-      }
-    }, 200);
-  }, [fetchSuggestions]); */
-
   const handleQueryChange = (e) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
@@ -110,8 +83,6 @@ const SearchApp = () => {
       setTotalResults(0);
       setHasSearched(false);
     }
-    
-   // debouncedFetchSuggestions(newQuery);
   };
 
   const handleSearch = (e) => {
@@ -183,9 +154,6 @@ const SearchApp = () => {
 
   React.useEffect(() => {
     return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -214,6 +182,7 @@ const SearchApp = () => {
               Search
             </button>
           </div>
+        </form>
           {suggestions.length > 0 && (
             <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-10">
               {suggestions.map((suggestion, index) => (
