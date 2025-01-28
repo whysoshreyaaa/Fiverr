@@ -67,7 +67,7 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
         status_code=status_code,
         content={"detail": detail},
-        headers=cors_headers
+      #  headers=cors_headers
     )
 
 # Update the Elasticsearch client initialization to disable meta headers
