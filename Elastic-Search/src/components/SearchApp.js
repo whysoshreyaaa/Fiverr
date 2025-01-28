@@ -16,10 +16,10 @@ const SearchApp = () => {
   const [selectedSummary, setSelectedSummary] = React.useState(null);
   const [pdfUrl, setPdfUrl] = React.useState(null);
   const [sortOrder, setSortOrder] = React.useState('desc');
-  const [suggestions, setSuggestions] = React.useState([]);
+//  const [suggestions, setSuggestions] = React.useState([]);
 
   const abortControllerRef = React.useRef(null);
-  const searchTimeoutRef = React.useRef(null);
+//  const searchTimeoutRef = React.useRef(null);
   const searchInputRef = React.useRef(null);
   
   const resultsPerPage = 10;
@@ -76,7 +76,7 @@ const SearchApp = () => {
     }
   }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults, sortOrder]);
 
-  const fetchSuggestions = React.useCallback(async (searchQuery) => {
+  /* const fetchSuggestions = React.useCallback(async (searchQuery) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/autocomplete?q=${searchQuery}`);
       const data = await response.json();
@@ -99,7 +99,7 @@ const SearchApp = () => {
         setSuggestions([]);
       }
     }, 200);
-  }, [fetchSuggestions]);
+  }, [fetchSuggestions]); */
 
   const handleQueryChange = (e) => {
     const newQuery = e.target.value;
@@ -111,7 +111,7 @@ const SearchApp = () => {
       setHasSearched(false);
     }
     
-    debouncedFetchSuggestions(newQuery);
+   // debouncedFetchSuggestions(newQuery);
   };
 
   const handleSearch = (e) => {
