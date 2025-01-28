@@ -288,20 +288,19 @@ async def get_pdf_url(doc_id: str):
 @app.get("/api/autocomplete")
 async def autocomplete(q: str = Query(...)):
     if not es_client:
-        return JSONResponse(
+        raise HTTPException(
             status_code=500,
-            content={"detail": "Elasticsearch not connected"},
-            headers=cors_headers  # Ensure CORS headers are added
+            detail="Elasticsearch not connected"
         )
     try:
         response = es_client.conn.search(...)
-        return [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
+        suggestions = [opt["text"] for opt in response["suggest"]["judgement-suggest"][0]["options"]]
+        return suggestions  # Simple return, middleware adds headers
     except Exception as e:
         logger.error(f"Autocomplete failed: {e}")
-        return JSONResponse(
+        raise HTTPException(
             status_code=500,
-            content={"detail": "Autocomplete failed"},
-            headers=cors_headers
+            detail="Autocomplete failed"
         )
 
 @app.get("/", tags=["Health Check"])
