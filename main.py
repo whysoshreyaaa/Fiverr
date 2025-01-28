@@ -51,13 +51,13 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 class ElasticsearchClient_SSLConnection:
     def __init__(self):
-        url = "elasticsearch-190712-0.cloudclusters."
+        url = "elasticsearch-190712-0.cloudclusters.net"
         port = 10043
         self.conn = Elasticsearch(
             hosts=[{"host": url, "port": port, "scheme": "https"}],
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
-            ca_certs="/certs/ca_certificate.pem",
+            ca_certs="/ca_certificate.pem",
             compatibility_mode=False,  # Disable v8 headers
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
