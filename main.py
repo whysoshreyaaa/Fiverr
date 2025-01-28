@@ -50,6 +50,28 @@ s3_client = boto3.client(
     region_name=aws_region
 )
 
+# In main-4.py
+@app.exception_handler(Exception)  # Catch all exceptions
+async def global_exception_handler(request: Request, exc: Exception):
+    cors_headers = {
+        "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "*",
+    }
+    if isinstance(exc, HTTPException):
+        status_code = exc.status_code
+        detail = exc.detail
+    else:
+        status_code = 500
+        detail = "Internal server error"
+    
+    return JSONResponse(
+        status_code=status_code,
+        content={"detail": detail},
+        headers=cors_headers
+    )
+
 class ElasticsearchClient_SSLConnection:
     def __init__(self):
         url = "elasticsearch-190712-0.cloudclusters.net"
