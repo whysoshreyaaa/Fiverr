@@ -57,8 +57,10 @@ class ElasticsearchClient_SSLConnection:
             hosts=[{"host": url, "port": port, "scheme": "https"}],
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
-            ca_certs="/ca_certificate.pem",
-            compatibility_mode=False,  # Disable v8 headers
+            ca_certs="/certs/ca_certificate.pem",  # Update path if needed
+            client_cert="client_elasticsearch-190712-0.cloudclusters.net_certificate.pem",
+            client_key="client_elasticsearch-190712-0.cloudclusters.net_key.pem",
+            compatibility_mode=False,
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
