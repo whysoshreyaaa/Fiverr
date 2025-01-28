@@ -9,11 +9,17 @@ import logging
 from dotenv import load_dotenv
 import os
 import uvicorn
-
+import ssl
+import certifi
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# Print default cert paths
+print("Default SSL cert file:", ssl.get_default_verify_paths().cafile)
+print("Default SSL cert path:", ssl.get_default_verify_paths().capath)
+print("Certifi cert path:", certifi.where())
 
 # Initialize FastAPI
 app = FastAPI()
