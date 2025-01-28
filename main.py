@@ -289,7 +289,7 @@ async def get_pdf_url(doc_id: str):
         raise HTTPException(status_code=500, detail=str(e))
     
 # Correct the autocomplete endpoint
-@app.get("/api/autocomplete")
+"""@app.get("/api/autocomplete")
 async def autocomplete(q: str = Query(...)):
     cors_headers = {
         "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
@@ -326,7 +326,7 @@ async def autocomplete(q: str = Query(...)):
             status_code=500,
             detail="Autocomplete failed",
             headers=cors_headers
-        )
+        )"""
 
 @app.get("/", tags=["Health Check"])
 async def root():
