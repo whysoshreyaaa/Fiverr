@@ -58,8 +58,6 @@ class ElasticsearchClient_SSLConnection:
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
             ca_certs="certs/ca_certificate.pem",
-            headers={"Accept": "application/json"},
-            meta_header=False
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
