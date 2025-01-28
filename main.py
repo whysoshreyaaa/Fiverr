@@ -28,8 +28,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    # Remove this line: allow_websockets=True,
     expose_headers=["*"],
-    allow_websockets=True,
     max_age=3600,
 )
 
