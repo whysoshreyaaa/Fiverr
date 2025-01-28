@@ -59,7 +59,6 @@ class ElasticsearchClient_SSLConnection:
             verify_certs=True,
             ca_certs="certs/ca_certificate.pem",
             compatibility_mode=False,  # Disable v8 headers
-            api_key=("_version", "7")  # Replace with your server version
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
