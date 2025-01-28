@@ -72,22 +72,18 @@ async def global_exception_handler(request: Request, exc: Exception):
         headers=cors_headers
     )
 
+# Replace with your actual Elasticsearch credentials
 class ElasticsearchClient_SSLConnection:
     def __init__(self):
-        url = "elasticsearch-190712-0.cloudclusters.net"
-        port = 10043
-        try:
-            self.conn = Elasticsearch(
-                hosts=[{"host": url, "port": port, "scheme": "https"}],
-                http_auth=("elastic", "HmtoTvKY"),
-                verify_certs=True,
-                ca_certs="certs/ca_certificate.pem",
-            )
-            if not self.conn.ping():
-                logger.error("Ping failed - using connection anyway")
-        except Exception as e:
-            logger.error(f"Elasticsearch init error: {e}")
-            raise
+        url = "elasticsearch-190712-0.cloudclusters.net"  # Verify URL
+        port = 10043                                      # Verify Port
+        self.conn = Elasticsearch(
+            hosts=[{"host": url, "port": port, "scheme": "https"}],
+            http_auth=("elastic", "HmtoTvKY"),            # Verify credentials
+            verify_certs=True,
+            ca_certs="certs/ca_certificate.pem",          # Verify certificate path
+        )
+        logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
 try:
     es_client = ElasticsearchClient_SSLConnection()
