@@ -1,7 +1,7 @@
 boto3
 botocore
-elasticsearch
 fastapi
 pydantic
 uvicorn
 python-dotenv
+elasticsearch==7.10.0
