@@ -183,82 +183,64 @@ const SearchApp = () => {
             </button>
           </div>
         </form>
-          {suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 z-10">
-              {suggestions.map((suggestion, index) => (
-                <div
-                  key={index}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => {
-                    setQuery(suggestion);
-                    setSuggestions([]);
-                  }}
-                >
-                  {suggestion}
-                </div>
-              ))}
-            </div>
-          )}
-        </form>
+
         <div className="mb-6 bg-white p-4 rounded-lg shadow">
-        <h2 className="font-semibold mb-4 text-gray-700">Filters</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Year range inputs - keep existing */}
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-600">Year Range</label>
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="number"
-                placeholder="From"
-                value={yearFrom}
-                onChange={handleYearChange(setYearFrom)}
-                min="1900"
-                max={new Date().getFullYear()}
-                className="w-full p-2 border rounded text-gray-700"
-              />
-              <input
-                type="number"
-                placeholder="To"
-                value={yearTo}
-                onChange={handleYearChange(setYearTo)}
-                min="1900"
-                max={new Date().getFullYear()}
-                className="w-full p-2 border rounded text-gray-700"
-              />
+          <h2 className="font-semibold mb-4 text-gray-700">Filters</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-600">Year Range</label>
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  placeholder="From"
+                  value={yearFrom}
+                  onChange={handleYearChange(setYearFrom)}
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  className="w-full p-2 border rounded text-gray-700"
+                />
+                <input
+                  type="number"
+                  placeholder="To"
+                  value={yearTo}
+                  onChange={handleYearChange(setYearTo)}
+                  min="1900"
+                  max={new Date().getFullYear()}
+                  className="w-full p-2 border rounded text-gray-700"
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Court select - keep existing */}
-          <div>
-            <label className="block text-sm font-medium mb-2 text-gray-600">Court</label>
-            <select
-              value={court}
-              onChange={handleCourtChange}
-              className="w-full p-2 border rounded text-gray-700"
-            >
-              <option value="">All Courts</option>
-              <option value="SC">Supreme Court</option>
-              <option value="HC">High Court</option>
-            </select>
-          </div>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-600">Court</label>
+              <select
+                value={court}
+                onChange={handleCourtChange}
+                className="w-full p-2 border rounded text-gray-700"
+              >
+                <option value="">All Courts</option>
+                <option value="SC">Supreme Court</option>
+                <option value="HC">High Court</option>
+              </select>
+            </div>
 
-          {/* ▼▼▼ Add this new sort control ▼▼▼ */}
-          <div>
-            <label className="block text-sm font-medium mb-2 text-gray-600">Sort Year</label>
-            <select
-              value={sortOrder}
-              onChange={(e) => {
-                setSortOrder(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full p-2 border rounded text-gray-700"
-            >
-              <option value="desc">Newest First</option>
-              <option value="asc">Oldest First</option>
-            </select>
+            <div>
+              <label className="block text-sm font-medium mb-2 text-gray-600">Sort Year</label>
+              <select
+                value={sortOrder}
+                onChange={(e) => {
+                  setSortOrder(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full p-2 border rounded text-gray-700"
+              >
+                <option value="desc">Newest First</option>
+                <option value="asc">Oldest First</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+
         {loading ? (
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-500"></div>
@@ -296,7 +278,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-                {/* ▼▼▼ Move PDF Link OUTSIDE Tags Block ▼▼▼ */}
                 {result.id && (
                   <button
                     onClick={() => handlePdfView(result.id)}
@@ -306,8 +287,6 @@ const SearchApp = () => {
                   </button>
                 )}
 
-
-                            
                 {result.JudgmentSummary && (
                   <button
                     onClick={() => setSelectedSummary(result.JudgmentSummary)}
@@ -372,7 +351,6 @@ const SearchApp = () => {
               </div>
               
               <div className="space-y-4 text-gray-700">
-                {/* Basic Information */}
                 {selectedSummary.JudgmentName && (
                   <div>
                     <h4 className="font-semibold mb-1">Case Name</h4>
@@ -380,8 +358,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-
-                {/* Brief Section */}
                 {selectedSummary.Brief?.Introduction && (
                   <div>
                     <h4 className="font-semibold mb-1">Introduction</h4>
@@ -389,7 +365,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-                {/* Background Section */}
                 {selectedSummary.Background?.Context && (
                   <div>
                     <h4 className="font-semibold mb-1">Background Context</h4>
@@ -404,7 +379,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-                {/* Key Issues */}
                 {selectedSummary.KeyIssues?.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-1">Key Issues</h4>
@@ -416,7 +390,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-                {/* Legal Propositions */}
                 {selectedSummary.LegalPropositions?.length > 0 && (
                   <div>
                     <h4 className="font-semibold mb-1">Legal Propositions</h4>
@@ -432,7 +405,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-                {/* Arguments Section */}
                 {selectedSummary.Arguments && (
                   <div>
                     <h4 className="font-semibold mb-1">Arguments</h4>
@@ -462,7 +434,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-                {/* Judgment Details */}
                 {selectedSummary.JudgmentDetails?.CourtRuling && (
                   <div>
                     <h4 className="font-semibold mb-1">Court Ruling</h4>
@@ -477,7 +448,6 @@ const SearchApp = () => {
                   </div>
                 )}
 
-                {/* Conclusion Section */}
                 {selectedSummary.Conclusion?.Summary && (
                   <div>
                     <h4 className="font-semibold mb-1">Conclusion</h4>
