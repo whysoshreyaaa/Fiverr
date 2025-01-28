@@ -68,16 +68,17 @@ async def global_exception_handler(request: Request, exc: Exception):
         headers=cors_headers
     )
 
-# Replace with your actual Elasticsearch credentials
+# Update the Elasticsearch client initialization to disable meta headers
 class ElasticsearchClient_SSLConnection:
     def __init__(self):
-        url = "elasticsearch-190712-0.cloudclusters.net"  # Verify URL
-        port = 10043                                      # Verify Port
+        url = "elasticsearch-190712-0.cloudclusters.net"
+        port = 10043
         self.conn = Elasticsearch(
             hosts=[{"host": url, "port": port, "scheme": "https"}],
-            http_auth=("elastic", "HmtoTvKY"),            # Verify credentials
+            http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
-            ca_certs="certs/ca_certificate.pem",          # Verify certificate path
+            ca_certs="certs/ca_certificate.pem",
+            meta_header=False  # Disable compatibility headers to prevent 406 error
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
