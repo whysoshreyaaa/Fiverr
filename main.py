@@ -81,7 +81,7 @@ class SearchResponse(BaseModel):
     facets: dict
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def unified_exception_handler(request: Request, exc: HTTPException):
     cors_headers = {
         "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
         "Access-Control-Allow-Credentials": "true",
@@ -93,33 +93,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content={"detail": exc.detail},
         headers=cors_headers
     )
-
-@app.exception_handler(HTTPException)
-async def cors_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail},
-        headers={
-            "Access-Control-Allow-Origin": "https://elastic-search-react-u30628.vm.elestio.app",
-            "Access-Control-Allow-Credentials": "true",
-        },
-    )
-
-@app.middleware("http")
-async def add_cors_headers(request, call_next):
-    response = await call_next(request)
-    response.headers["Access-Control-Allow-Origin"] = "https://elastic-search-react-u30628.vm.elestio.app"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    return response
-
-@app.middleware("http")
-async def log_requests(request, call_next):
-    logger.debug(f"Incoming request: {request.method} {request.url}")
-    logger.debug(f"Headers: {request.headers}")
-    response = await call_next(request)
-    logger.debug(f"Response status: {response.status_code}")
-    logger.debug(f"Response headers: {response.headers}")
-    return response
 
 @app.get("/api/search", response_model=SearchResponse)
 async def search(
@@ -321,7 +294,22 @@ async def autocomplete(q: str = Query(...)):
     except Exception as e:
         return []
 
-
+@app.get("/", tags=["Health Check"])
+async def root():
+    """
+    Root endpoint for health checks and service verification
+    """
+    return {
+        "message": "Judgment Search API is running",
+        "status": "healthy",
+        "es_connected": bool(es_client and es_client.conn.ping()),
+        "api_version": "1.0",
+        "endpoints": {
+            "/api/search": "Search endpoint",
+            "/api/get-pdf-url": "PDF retrieval",
+            "/api/autocomplete": "Autocomplete suggestions"
+        }
+    }
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
