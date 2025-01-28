@@ -70,7 +70,7 @@ async def global_exception_handler(request: Request, exc: Exception):
       #  headers=cors_headers
     )
 
-# Update the Elasticsearch client initialization to disable meta headers
+# Replace the existing ElasticsearchClient_SSLConnection class with this:
 class ElasticsearchClient_SSLConnection:
     def __init__(self):
         url = "elasticsearch-190712-0.cloudclusters.net"
@@ -80,7 +80,8 @@ class ElasticsearchClient_SSLConnection:
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
             ca_certs="certs/ca_certificate.pem",
-            meta_header=False  # Disable compatibility headers to prevent 406 error
+            headers={"Accept": "application/json"},  # Force JSON response
+            meta_header=False  # Disable ES 8.x compatibility headers
         )
         logger.info(f"Elasticsearch connected: {self.conn.ping()}")
 
