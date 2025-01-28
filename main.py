@@ -51,7 +51,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 class ElasticsearchClient_SSLConnection:
     def __init__(self):
-        url = "elasticsearch-190712-0.cloudclusters.net"
+        url = "elasticsearch-190712-0.cloudclusters."
         port = 10043
         self.conn = Elasticsearch(
             hosts=[{"host": url, "port": port, "scheme": "https"}],
