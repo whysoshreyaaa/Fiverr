@@ -138,7 +138,7 @@ async def search(
         if court in ["SC", "HC"]:
             filter_conditions.append({
                 "prefix": {
-                    "_id": court  # Directly filter by document ID prefix
+                    "_id": court.lower()  # Convert to lowercase
                 }
             })
 
