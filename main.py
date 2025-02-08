@@ -138,7 +138,7 @@ async def search(
         if court in ["SC", "HC"]:
             filter_conditions.append({
                 "prefix": {
-                    "_id": court.lower()  # Convert to lowercase
+                    "_id": court  
                 }
             })
 
@@ -182,8 +182,11 @@ async def search(
                 "aggs": aggs,
                 "from": from_value,
                 "size": size,
-                "track_total_hits": True
-                # Removed "sort" clause to disable sorting
+                "track_total_hits": True,
+                "sort": [
+                    {"JudgmentMetadata.CaseDetails.JudgmentYear": {"order": sortOrder}},  # Remove .keyword
+                    {"_id": "asc"}
+                ]
             }
         )
 
