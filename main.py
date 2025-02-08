@@ -113,10 +113,10 @@ async def search(
 
     try:
         from_value = (page - 1) * size
-        must_conditions = []
+        filter_conditions = []
 
         if q:
-            must_conditions.append({
+            filter_conditions.append({
                 "multi_match": {
                     "query": q,
                     "fields": ["*"]
@@ -129,14 +129,14 @@ async def search(
                 year_range["gte"] = str(yearFrom).zfill(4)
             if yearTo:
                 year_range["lte"] = str(yearTo).zfill(4)
-            must_conditions.append({
+            filter_conditions.append({
                 "range": {
                     "JudgmentMetadata.CaseDetails.JudgmentYear.keyword": year_range
                 }
             })
 
         if court in ["SC", "HC"]:
-            must_conditions.append({
+            filter_conditions.append({
                 "script": {
                     "script": {
                         "source": "doc['_id'].value.startsWith(params.prefix)",
@@ -145,8 +145,7 @@ async def search(
                 }
             })
 
-        query = {"bool": {"must": must_conditions or [{"match_all": {}}]}}
-
+        query = {"bool": {"filter": filter_conditions or [{"match_all": {}}]}}
         aggs = {
             "years": {
                 "terms": {
