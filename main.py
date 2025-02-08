@@ -116,12 +116,12 @@ async def search(
         filter_conditions = []
 
         # Use term-level queries for strict filtering
-        if q:
-            filter_conditions.append({
-                "term": {
-                    "JudgmentSummary.JudgmentName.keyword": q  # ✅ Target a specific field
-                }
-            })
+    if q:
+        filter_conditions.append({
+            "match": {  # Use "term" for exact matches, "match" for analyzed text
+                "JudgmentMetadata.Tags.Tag": q  # Target the Tag field within Tags array
+            }
+        })
 
         if yearFrom or yearTo:
             year_range = {}
