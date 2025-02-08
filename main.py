@@ -145,7 +145,7 @@ async def search(
                 }
             })
 
-        query = {"bool": {"must": must_conditions or [{"match_all": {}}]}}
+        query = {"bool": {"filter": must_conditions or [{"match_all": {}}]}}
 
         aggs = {
             "years": {
