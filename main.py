@@ -115,11 +115,11 @@ async def search(
         from_value = (page - 1) * size
         filter_conditions = []
 
+        # Use term-level queries for strict filtering
         if q:
             filter_conditions.append({
-                "multi_match": {
-                    "query": q,
-                    "fields": ["*"]
+                "term": {
+                    "_source": q  # Replace with the actual field you want to filter
                 }
             })
 
@@ -137,15 +137,18 @@ async def search(
 
         if court in ["SC", "HC"]:
             filter_conditions.append({
-                "script": {
-                    "script": {
-                        "source": "doc['_id'].value.startsWith(params.prefix)",
-                        "params": {"prefix": court}
-                    }
+                "prefix": {
+                    "_id": court  # Directly filter by document ID prefix
                 }
             })
 
-        query = {"bool": {"filter": filter_conditions or [{"match_all": {}}]}}
+        # Use constant_score to disable relevance scoring
+        query = {
+            "constant_score": {
+                "filter": filter_conditions or {"match_all": {}}
+            }
+        }
+
         aggs = {
             "years": {
                 "terms": {
@@ -167,10 +170,14 @@ async def search(
 
         response = es_client.conn.search(
             index="judgements-index",
-            body={"query": query, "aggs": aggs, "from": from_value, "size": size, "track_total_hits": True, "sort": [
-                {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}},
-                {"_id": "asc"}
-            ]}
+            body={
+                "query": query,
+                "aggs": aggs,
+                "from": from_value,
+                "size": size,
+                "track_total_hits": True
+                # Removed "sort" clause to disable sorting
+            }
         )
 
         results = [{"id": hit["_id"], **hit["_source"]} for hit in response["hits"]["hits"]]
