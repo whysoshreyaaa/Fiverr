@@ -119,7 +119,7 @@ async def search(
         if q:
             filter_conditions.append({
                 "term": {
-                    "_source": q  # Replace with the actual field you want to filter
+                    "JudgmentSummary.JudgmentName.keyword": q  # ✅ Target a specific field
                 }
             })
 
@@ -143,11 +143,18 @@ async def search(
             })
 
         # Use constant_score to disable relevance scoring
-        query = {
-            "constant_score": {
-                "filter": filter_conditions or {"match_all": {}}
+        if filter_conditions:
+            query = {
+                "constant_score": {
+                    "filter": {
+                        "bool": {
+                            "must": filter_conditions  # or "filter" depending on your intent
+                        }
+                    }
+                }
             }
-        }
+        else:
+            query = {"match_all": {}}
 
         aggs = {
             "years": {
