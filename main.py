@@ -182,11 +182,8 @@ async def search(
                 "aggs": aggs,
                 "from": from_value,
                 "size": size,
-                "track_total_hits": True,
-                "sort": [
-                    {"JudgmentMetadata.CaseDetails.JudgmentYear": {"order": sortOrder}},  # Remove .keyword
-                    {"_id": "asc"}
-                ]
+                "track_total_hits": True
+                # Removed "sort" clause to disable sorting
             }
         )
 
