@@ -161,7 +161,7 @@ async def search(
                 "terms": {
                     "field": "JudgmentMetadata.CaseDetails.JudgmentYear.keyword",
                     "size": 50,
-                    "order": {"_key": "desc"}
+                    "order": {"_key": sortOrder}
                 }
             },
             "courts": {
