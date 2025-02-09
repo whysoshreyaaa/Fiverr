@@ -272,21 +272,7 @@ const SearchApp = () => {
                 <p className="text-gray-600 mb-2">
                   {result.JudgmentSummary?.Brief?.Introduction || "No summary available"}
                 </p>
-                {result.JudgmentMetadata?.Tags?.length > 0 && (
-                  <div className="mt-2">
-                    <h4 className="text-sm font-bold text-gray-600 mb-1">Keywords</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {result.JudgmentMetadata.Tags.map((tag, idx) => (
-                        <span
-                          key={idx}
-                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                        >
-                          {tag.Tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+
 
                 {result.id && (
                   <button
