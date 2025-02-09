@@ -105,14 +105,40 @@ const SearchApp = () => {
   };
 
   const handleYearChange = (setter) => (e) => {
-    setter(e.target.value);
-    setCurrentPage(1);
+    const value = e.target.value;
+    const year = parseInt(value);
+    const currentYear = new Date().getFullYear();
+    
+    // Clear the value if empty
+    if (!value) {
+      setter('');
+      if (hasSearched) {
+        setCurrentPage(1);
+      }
+      return;
+    }
+    
+    // Validate year input
+    if (isNaN(year) || year < 1900 || year > currentYear) {
+      alert(`Please enter a valid year between 1900 and ${currentYear}`);
+      return;
+    }
+    
+    setter(value);
+    if (hasSearched) {
+      setCurrentPage(1);
+    }
   };
 
+
   const handleCourtChange = (e) => {
-    setCourt(e.target.value);
-    setCurrentPage(1);
+    const value = e.target.value;
+    setCourt(value);
+    if (hasSearched) {
+      setCurrentPage(1);
+    }
   };
+
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -230,8 +256,11 @@ const SearchApp = () => {
                 value={sortOrder}
                 onChange={(e) => {
                   setSortOrder(e.target.value);
-                  setCurrentPage(1);
+                  if (hasSearched) {
+                    setCurrentPage(1);
+                  }
                 }}
+
                 className="w-full p-2 border rounded text-gray-700"
               >
                 <option value="desc">Newest First</option>
