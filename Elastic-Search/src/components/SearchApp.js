@@ -42,7 +42,11 @@ const SearchApp = () => {
 
       if (yearFrom) params.append('yearFrom', yearFrom);
       if (yearTo) params.append('yearTo', yearTo);
-      if (court) params.append('court', court.toLowerCase());
+      if (court) {
+        params.append('court', court.toLowerCase());
+      }
+
+
 
       const response = await fetch(
         `${API_BASE_URL}/api/search?${params}`,
