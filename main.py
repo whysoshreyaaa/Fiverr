@@ -156,7 +156,7 @@ async def search(
         else:
             query = {"match_all": {}}
 
-        aggs = {
+        "aggs": {
             "years": {
                 "terms": {
                     "field": "JudgmentMetadata.CaseDetails.JudgmentYear.keyword",
