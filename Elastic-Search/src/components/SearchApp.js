@@ -24,47 +24,49 @@ const SearchApp = () => {
   const totalPages = Math.ceil(totalResults / resultsPerPage);
 
   const fetchResults = React.useCallback(async () => {
-      try {
-          if (abortControllerRef.current) {
-              abortControllerRef.current.abort();
-          }
-          abortControllerRef.current = new AbortController();
-          const signal = abortControllerRef.current.signal;
-  
-          setLoading(true);
-  
-          const params = new URLSearchParams({
-              q: query,
-              page: currentPage.toString(),
-              size: resultsPerPage.toString(),
-              sortOrder: sortOrder
-          });
-  
-          if (yearFrom) params.append('yearFrom', yearFrom);
-          if (yearTo) params.append('yearTo', yearTo);
-          if (court) params.append('court', court);
-  
-          const response = await fetch(
-              `${API_BASE_URL}/api/search?${params}`,
-              { signal }
-          );
-  
-          if (!response.ok) throw new Error("Failed to fetch data");
-  
-          const data = await response.json();
-  
-          React.startTransition(() => {  // Batch state updates to prevent UI lag
-              setResults(data.hits.hits);
-              setTotalResults(data.hits.total.value);
-              setLoading(false);
-          });
-  
-      } catch (error) {
-          if (error.name !== "AbortError") {
-              console.error("Error fetching search results:", error);
-          }
+    try {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
-  }, [query, currentPage, resultsPerPage, sortOrder, yearFrom, yearTo, court]);
+  
+      abortControllerRef.current = new AbortController();
+      
+      setLoading(true);
+      
+      const params = new URLSearchParams({
+        q: query,
+        page: currentPage.toString(),
+        size: resultsPerPage.toString(),
+        sortOrder: sortOrder
+      });
+  
+      if (yearFrom) params.append('yearFrom', yearFrom);
+      if (yearTo) params.append('yearTo', yearTo);
+      if (court) params.append('court', court); // Remove toLowerCase() as backend expects "SC" or "HC"
+  
+      const response = await fetch(
+        `${API_BASE_URL}/api/search?${params}`,
+        { signal: abortControllerRef.current.signal }
+      );
+      
+      const data = await response.json();
+  
+      if (!abortControllerRef.current.signal.aborted) {
+        setResults(data.results || []);
+        setTotalResults(data.total || 0);
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Search error:', error);
+        setResults([]);
+        setTotalResults(0);
+      }
+    } finally {
+      if (!abortControllerRef.current?.signal.aborted) {
+        setLoading(false);
+      }
+    }
+  }, [query, currentPage, yearFrom, yearTo, court, sortOrder]);
 
 
 
