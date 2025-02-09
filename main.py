@@ -138,9 +138,7 @@ async def search(
         # Add court filter based on _id prefix
         if court in ["SC", "HC"]:
             filter_conditions.append({
-                "prefix": {
-                    "_id": court  
-                }
+                "prefix": {"JudgmentMetadata.DocumentID": court}  # Filters HC or SC cases
             })
 
         # Use constant_score to disable relevance scoring
