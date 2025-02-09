@@ -42,9 +42,7 @@ const SearchApp = () => {
 
       if (yearFrom) params.append('yearFrom', yearFrom);
       if (yearTo) params.append('yearTo', yearTo);
-      if (court) {
-        params.append('court', court.toLowerCase());
-      }
+      if (court) params.append('court', court);
 
 
 
@@ -119,6 +117,7 @@ const SearchApp = () => {
     setCourt(value);
     if (hasSearched) {
       setCurrentPage(1);
+      fetchResults(); // Trigger immediate search when court filter changes
     }
   };
 
