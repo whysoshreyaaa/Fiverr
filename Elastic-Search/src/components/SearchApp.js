@@ -28,7 +28,7 @@ const SearchApp = () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-
+  
       abortControllerRef.current = new AbortController();
       
       setLoading(true);
@@ -39,20 +39,18 @@ const SearchApp = () => {
         size: resultsPerPage.toString(),
         sortOrder: sortOrder
       });
-
+  
       if (yearFrom) params.append('yearFrom', yearFrom);
       if (yearTo) params.append('yearTo', yearTo);
-      if (court) params.append('court', court);
-
-
-
+      if (court) params.append('court', court); // Remove toLowerCase() as backend expects "SC" or "HC"
+  
       const response = await fetch(
         `${API_BASE_URL}/api/search?${params}`,
         { signal: abortControllerRef.current.signal }
       );
       
       const data = await response.json();
-
+  
       if (!abortControllerRef.current.signal.aborted) {
         setResults(data.results || []);
         setTotalResults(data.total || 0);
@@ -68,7 +66,8 @@ const SearchApp = () => {
         setLoading(false);
       }
     }
-  }, [query, currentPage, yearFrom, yearTo, court, sortOrder ]);
+  }, [query, currentPage, yearFrom, yearTo, court, sortOrder]);
+
 
   React.useEffect(() => {
     if (hasSearched) {
