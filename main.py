@@ -182,8 +182,15 @@ async def search(
                 "aggs": aggs,
                 "from": from_value,
                 "size": size,
-                "track_total_hits": True
-                # Removed "sort" clause to disable sorting
+                "track_total_hits": True,
+                # Add this sort clause
+                "sort": [
+                    {
+                        "JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {
+                            "order": sortOrder  # "asc" or "desc"
+                        }
+                    }
+                ]
             }
         )
 
