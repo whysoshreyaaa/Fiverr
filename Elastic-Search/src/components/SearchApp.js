@@ -28,7 +28,7 @@ const SearchApp = () => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-  
+
       abortControllerRef.current = new AbortController();
       
       setLoading(true);
@@ -39,18 +39,18 @@ const SearchApp = () => {
         size: resultsPerPage.toString(),
         sortOrder: sortOrder
       });
-  
+
       if (yearFrom) params.append('yearFrom', yearFrom);
       if (yearTo) params.append('yearTo', yearTo);
-      if (court) params.append('court', court); // Remove toLowerCase() as backend expects "SC" or "HC"
-  
+      if (court) params.append('court', court);
+
       const response = await fetch(
         `${API_BASE_URL}/api/search?${params}`,
         { signal: abortControllerRef.current.signal }
       );
       
       const data = await response.json();
-  
+
       if (!abortControllerRef.current.signal.aborted) {
         setResults(data.results || []);
         setTotalResults(data.total || 0);
@@ -66,14 +66,12 @@ const SearchApp = () => {
         setLoading(false);
       }
     }
-  }, [query, currentPage, yearFrom, yearTo, court, sortOrder]);
-
-
+  }, [query, currentPage, yearFrom, yearTo, court, sortOrder ]);
 
   React.useEffect(() => {
-      if (hasSearched) {
-          fetchResults(); // Automatically call search when filters change
-      }
+    if (hasSearched) {
+      fetchResults();
+    }
   }, [query, currentPage, yearFrom, yearTo, court, hasSearched, fetchResults, sortOrder]);
 
   const handleQueryChange = (e) => {
@@ -111,16 +109,10 @@ const SearchApp = () => {
     setCurrentPage(1);
   };
 
-
   const handleCourtChange = (e) => {
-    const value = e.target.value;
-    setCourt(value);
-    if (hasSearched) {
-      setCurrentPage(1);
-      fetchResults(); // Trigger immediate search when court filter changes
-    }
+    setCourt(e.target.value);
+    setCurrentPage(1);
   };
-
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
@@ -238,11 +230,8 @@ const SearchApp = () => {
                 value={sortOrder}
                 onChange={(e) => {
                   setSortOrder(e.target.value);
-                  if (hasSearched) {
-                    setCurrentPage(1);
-                  }
+                  setCurrentPage(1);
                 }}
-
                 className="w-full p-2 border rounded text-gray-700"
               >
                 <option value="desc">Newest First</option>
@@ -268,13 +257,26 @@ const SearchApp = () => {
             {results.map((result) => (
               <div key={result.id} className="bg-white p-4 rounded-lg shadow">
                 <h3 className="text-lg font-semibold mb-2 text-gray-800">
-                  {result.JudgmentMetadata?.CaseDetails?.CaseTitle || "No title available"}
+                  {result.JudgmentSummary?.JudgmentName || "No title available"}
                 </h3>
-                {/* Updated summary section */}
                 <p className="text-gray-600 mb-2">
-                  {result.JudgmentMetadata?.Summary?.Overview || "No summary available"}
+                  {result.JudgmentSummary?.Brief?.Introduction || "No summary available"}
                 </p>
-
+                {result.JudgmentMetadata?.Tags?.length > 0 && (
+                  <div className="mt-2">
+                    <h4 className="text-sm font-bold text-gray-600 mb-1">Keywords</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {result.JudgmentMetadata.Tags.map((tag, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                        >
+                          {tag.Tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {result.id && (
                   <button
