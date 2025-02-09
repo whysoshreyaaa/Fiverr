@@ -138,8 +138,8 @@ async def search(
         # Add court filter based on _id prefix
         if court in ["SC", "HC"]:
             filter_conditions.append({
-                "wildcard": {
-                    "_id": f"{court}*"  // Matches "SC" or "HC" followed by any characters
+                "prefix": {
+                    "_id": court  # Ensure `court` matches the case of the `_id` prefix (e.g., "SC" or "sc")
                 }
             })
 
