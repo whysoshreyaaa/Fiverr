@@ -135,10 +135,11 @@ async def search(
                 }
             })
 
+        # Add court filter based on _id prefix
         if court in ["SC", "HC"]:
             filter_conditions.append({
                 "prefix": {
-                    "_id": court  
+                    "_id": court  # Filter based on the prefix of the _id field
                 }
             })
 
@@ -211,7 +212,6 @@ async def search(
     except Exception as e:
         logger.error(f"Search failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-
 @app.on_event("startup")
 async def load_pdf_mappings():
     global filename_to_key
