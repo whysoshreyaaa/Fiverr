@@ -156,48 +156,27 @@ async def search(
         else:
             query = {"match_all": {}}
 
-        aggs = {
-            "years": {
-                "terms": {
-                    "field": "JudgmentMetadata.CaseDetails.JudgmentYear.keyword",
-                    "size": 50,
-                    "order": {"_key": "desc"}
-                }
-            },
-            "courts": {
-                "terms": {
-                    "script": {
-                        "source": "doc['_id'].value.substring(0,2)",
-                        "lang": "painless"
-                    },
-                    "size": 50
-                }
-            }
-        }
+
+
+        sort_field = "JudgmentMetadata.CaseDetails.JudgmentYear.keyword"
+        sort_config = [{sort_field: {"order": sortOrder}}]
 
         response = es_client.conn.search(
             index="judgements-index",
             body={
                 "query": query,
-                "aggs": aggs,
                 "from": from_value,
                 "size": size,
+                "sort": sort_config,
                 "track_total_hits": True
-                # Removed "sort" clause to disable sorting
             }
         )
 
+
+
         results = [{"id": hit["_id"], **hit["_source"]} for hit in response["hits"]["hits"]]
         
-        court_buckets = [
-            {"key": "SC", "doc_count": 0},
-            {"key": "HC", "doc_count": 0}
-        ]
-        for bucket in response["aggregations"]["courts"]["buckets"]:
-            if bucket["key"] in ["SC", "HC"]:
-                for cb in court_buckets:
-                    if cb["key"] == bucket["key"]:
-                        cb["doc_count"] = bucket["doc_count"]
+
 
         return {
             "total": response["hits"]["total"]["value"],
