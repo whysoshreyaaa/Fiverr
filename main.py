@@ -138,9 +138,7 @@ async def search(
         # Add court filter based on _id prefix
         if court in ["SC", "HC"]:
             filter_conditions.append({
-                "prefix": {
-                    "_id": court  # Ensure `court` matches the case of the `_id` prefix (e.g., "SC" or "sc")
-                }
+                "wildcard": {"_id": f"{court}*"}  # Uses wildcard instead of prefix
             })
 
         # Use constant_score to disable relevance scoring
