@@ -267,10 +267,11 @@ const SearchApp = () => {
             {results.map((result) => (
               <div key={result.id} className="bg-white p-4 rounded-lg shadow">
                 <h3 className="text-lg font-semibold mb-2 text-gray-800">
-                  {result.JudgmentSummary?.JudgmentName || "No title available"}
+                  {result.JudgmentMetadata?.CaseDetails?.CaseTitle || "No title available"}
                 </h3>
+                {/* Updated summary section */}
                 <p className="text-gray-600 mb-2">
-                  {result.JudgmentSummary?.Brief?.Introduction || "No summary available"}
+                  {result.JudgmentMetadata?.Summary?.Overview || "No summary available"}
                 </p>
 
 
