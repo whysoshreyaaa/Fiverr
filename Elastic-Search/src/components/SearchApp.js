@@ -105,29 +105,8 @@ const SearchApp = () => {
   };
 
   const handleYearChange = (setter) => (e) => {
-    const value = e.target.value;
-    const year = parseInt(value);
-    const currentYear = new Date().getFullYear();
-    
-    // Clear the value if empty
-    if (!value) {
-      setter('');
-      if (hasSearched) {
-        setCurrentPage(1);
-      }
-      return;
-    }
-    
-    // Validate year input
-    if (isNaN(year) || year < 1900 || year > currentYear) {
-      alert(`Please enter a valid year between 1900 and ${currentYear}`);
-      return;
-    }
-    
-    setter(value);
-    if (hasSearched) {
-      setCurrentPage(1);
-    }
+    setter(e.target.value);
+    setCurrentPage(1);
   };
 
 
