@@ -134,7 +134,7 @@ async def search(
         if sortOrder:
             # When sortOrder is selected: Primary sort by year, secondary by score
             sort_clause = [
-                {"JudgmentMetadata.CaseDetails.JudgmentYear": {"order": sortOrder}},
+                {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}},
                 {"_score": {"order": "desc"}}
             ]
         else:
