@@ -133,7 +133,7 @@ async def search(
         sort_clause = []
         if sortOrder:
             # When year sort is selected: sort ONLY by year
-            sort_clause = [{"JudgmentMetadata.CaseDetails.JudgmentYear": {"order": sortOrder}}]
+            sort_clause = [{"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}}]
         else:
             # Default: sort by relevance
             sort_clause = [{"_score": {"order": "desc"}}]
