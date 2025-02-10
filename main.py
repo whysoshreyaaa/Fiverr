@@ -116,12 +116,28 @@ async def search(
         filter_conditions = []
 
         # Use term-level queries for strict filtering
-        if q:
-            filter_conditions.append({
-                "match": {  # Use "term" for exact matches, "match" for analyzed text
-                    "JudgmentMetadata.Tags.Tag": q  # Target the Tag field within Tags array
+        query = {
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "multi_match": {
+                                "query": q,
+                                "fields": ["*"],  # Search across all fields
+                                "type": "best_fields"
+                            }
+                        }
+                    ],
+                    "filter": []  # Filters remain unchanged
                 }
-            })
+            },
+            "sort": [
+                {"_score": {"order": "desc"}}  # Default sort by relevance
+            ],
+            "from": from_value,
+            "size": size
+        }
+
 
         if yearFrom or yearTo:
             year_range = {}
@@ -143,18 +159,18 @@ async def search(
 
 
         # Use constant_score to disable relevance scoring
-        if filter_conditions:
-            query = {
-                "constant_score": {
-                    "filter": {
-                        "bool": {
-                            "must": filter_conditions  # or "filter" depending on your intent
-                        }
-                    }
-                }
-            }
-        else:
-            query = {"match_all": {}}
+       # if filter_conditions:
+       #     query = {
+       #         "constant_score": {
+        #            "filter": {
+         #               "bool": {
+          #                  "must": filter_conditions  # or "filter" depending on your intent
+           #             }
+            #        }
+             #   }
+         #   }
+        #else:
+         #   query = {"match_all": {}} 
 
         aggs = {
             "years": {
@@ -185,12 +201,9 @@ async def search(
                 "track_total_hits": True,
                 # Add this sort clause
                 "sort": [
-                    {
-                        "JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {
-                            "order": sortOrder  # "asc" or "desc"
-                        }
-                    }
+                    {"_score": {"order": "desc"}}  
                 ]
+
             }
         )
 
