@@ -115,8 +115,7 @@ async def search(
         from_value = (page - 1) * size
         filter_conditions = []
 
-        # Use term-level queries for strict filtering
-
+        
 
 
         if yearFrom or yearTo:
@@ -182,7 +181,8 @@ async def search(
                 "size": size,
                 "track_total_hits": True,
                 "sort": [
-                    {"_score": {"order": "desc"}}
+                    {"_score": {"order": "desc"}},  # Default to relevance
+                    {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}}
                 ]
             }
         )
