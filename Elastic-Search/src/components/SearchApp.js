@@ -15,7 +15,7 @@ const SearchApp = () => {
   const [hasSearched, setHasSearched] = React.useState(false);
   const [selectedSummary, setSelectedSummary] = React.useState(null);
   const [pdfUrl, setPdfUrl] = React.useState(null);
-  const [sortOrder, setSortOrder] = React.useState('desc');
+  const [sortOrder, setSortOrder] = React.useState('');
 
   const abortControllerRef = React.useRef(null);
   const searchInputRef = React.useRef(null);
@@ -37,8 +37,11 @@ const SearchApp = () => {
         q: query,
         page: currentPage.toString(),
         size: resultsPerPage.toString(),
-        sortOrder: sortOrder
       });
+      
+      if (sortOrder) {
+        params.append('sortOrder', sortOrder);
+      }
 
       if (yearFrom) params.append('yearFrom', yearFrom);
       if (yearTo) params.append('yearTo', yearTo);
@@ -234,6 +237,7 @@ const SearchApp = () => {
                 }}
                 className="w-full p-2 border rounded text-gray-700"
               >
+                <option value="">None (Default)</option>
                 <option value="desc">Newest First</option>
                 <option value="asc">Oldest First</option>
               </select>
