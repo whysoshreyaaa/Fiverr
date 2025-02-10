@@ -106,7 +106,7 @@ async def search(
     yearFrom: Optional[str] = None,
     yearTo: Optional[str] = None,
     court: Optional[str] = None,
-    sortOrder: Optional[str] = Query("desc", regex="^(asc|desc)$") 
+    sortOrder: str = Query("desc", regex="^(asc|desc)$") 
 ):
     if not es_client:
         raise HTTPException(status_code=500, detail="Elasticsearch connection failed")
@@ -129,16 +129,7 @@ async def search(
                     "JudgmentMetadata.CaseDetails.JudgmentYear.keyword": year_range
                 }
             })
-            
-        sort_clause = []
-        if sortOrder:
-            # When year sort is selected: sort ONLY by year
-            sort_clause = [{"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}}]
-        else:
-            # Default: sort by relevance
-            sort_clause = [{"_score": {"order": "desc"}}]
 
-            
         # Add court filter based on _id prefix
         if court in ["SC", "HC"]:
             filter_conditions.append({
@@ -188,9 +179,11 @@ async def search(
                 "aggs": aggs,
                 "from": from_value,
                 "size": size,
-                "sort": sort_clause,
-                "track_total_hits": True
-        
+                "track_total_hits": True,
+                "sort": [
+                    {"_score": {"order": "desc"}},  # Default to relevance
+                    
+                ]
             }
         )
 
