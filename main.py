@@ -159,6 +159,7 @@ async def search(
             )
         else:
             sort_clause.append({"_score": {"order": "desc"}})
+            sort_clause.append({"_id": {"order": "asc"}})
         
         aggs = {
             "years": {
