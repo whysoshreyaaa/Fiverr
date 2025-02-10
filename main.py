@@ -152,7 +152,14 @@ async def search(
             }
         }
 
-
+        sort_clause = []
+        if sortOrder:
+            sort_clause.append(
+                {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}}
+            )
+        else:
+            sort_clause.append({"_score": {"order": "desc"}})
+        
         aggs = {
             "years": {
                 "terms": {
@@ -180,10 +187,7 @@ async def search(
                 "from": from_value,
                 "size": size,
                 "track_total_hits": True,
-                "sort": [
-                    {"_score": {"order": "desc"}},  # Default to relevance
-                    
-                ]
+                "sort": sort_clause
             }
         )
 
