@@ -151,7 +151,6 @@ async def search(
                 "filter": filter_conditions 
             }
         }
-
         sort_clause = []
         if sortOrder:
             sort_clause.append(
@@ -159,14 +158,13 @@ async def search(
             )
         else:
             sort_clause.append({"_score": {"order": "desc"}})
-            sort_clause.append({"_id": {"order": "asc"}})
         
         aggs = {
             "years": {
                 "terms": {
                     "field": "JudgmentMetadata.CaseDetails.JudgmentYear.keyword",
                     "size": 50,
-                    "order": {"_key": sortOrder}
+                    **({"order": {"_key": sortOrder}} if sortOrder else {})
                 }
             },
             "courts": {
