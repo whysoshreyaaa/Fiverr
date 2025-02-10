@@ -190,8 +190,9 @@ async def search(
                 "aggs": aggs,
                 "from": from_value,
                 "size": size,
-                "track_total_hits": True,
                 "sort": sort_clause
+                "track_total_hits": True,
+        
             }
         )
 
