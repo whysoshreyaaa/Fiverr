@@ -138,27 +138,21 @@ async def search(
             })
 
 
-        query = {
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "multi_match": {
-                                "query": q,
-                                "fields": ["*"],  # Search across all fields
-                                "type": "best_fields"
-                            }
+        query = {  
+            "bool": {
+                "must": [
+                    {
+                        "multi_match": {
+                            "query": q,
+                            "fields": ["*"],
+                            "type": "best_fields"
                         }
-                    ],
-                    "filter": []  # Filters remain unchanged
-                }
-            },
-            "sort": [
-                {"_score": {"order": "desc"}}  # Default sort by relevance
-            ],
-            "from": from_value,
-            "size": size
+                    }
+                ],
+                "filter": filter_conditions 
+            }
         }
+
 
         aggs = {
             "years": {
@@ -182,16 +176,14 @@ async def search(
         response = es_client.conn.search(
             index="judgements-index",
             body={
-                "query": query,
+                "query": query,  # Now correctly placed at top level
                 "aggs": aggs,
                 "from": from_value,
                 "size": size,
                 "track_total_hits": True,
-                # Add this sort clause
                 "sort": [
-                    {"_score": {"order": "desc"}}  
+                    {"_score": {"order": "desc"}}
                 ]
-
             }
         )
 
