@@ -182,7 +182,7 @@ async def search(
                 "track_total_hits": True,
                 "sort": [
                     {"_score": {"order": "desc"}},  # Default to relevance
-                    {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}}
+                    
                 ]
             }
         )
