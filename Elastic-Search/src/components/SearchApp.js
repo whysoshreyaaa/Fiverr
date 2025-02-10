@@ -237,7 +237,7 @@ const SearchApp = () => {
                 }}
                 className="w-full p-2 border rounded text-gray-700"
               >
-                <option value="">None (Default)</option>
+                <option value="">None </option>
                 <option value="desc">Newest First</option>
                 <option value="asc">Oldest First</option>
               </select>
