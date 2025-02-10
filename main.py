@@ -132,14 +132,12 @@ async def search(
             
         sort_clause = []
         if sortOrder:
-            # When sortOrder is selected: Primary sort by year, secondary by score
-            sort_clause = [
-                {"JudgmentMetadata.CaseDetails.JudgmentYear.keyword": {"order": sortOrder}},
-                {"_score": {"order": "desc"}}
-            ]
+            # When year sort is selected: sort ONLY by year
+            sort_clause = [{"JudgmentMetadata.CaseDetails.JudgmentYear": {"order": sortOrder}}]
         else:
-            # Default: Primary sort by score only
+            # Default: sort by relevance
             sort_clause = [{"_score": {"order": "desc"}}]
+
             
         # Add court filter based on _id prefix
         if court in ["SC", "HC"]:
