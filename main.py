@@ -70,9 +70,9 @@ class ElasticsearchClient_SSLConnection:
             hosts=[{"host": url, "port": port, "scheme": "https"}],
             http_auth=("elastic", "HmtoTvKY"),
             verify_certs=True,
-            ca_certs="/app/certs/ca_certificate.pem",
-            ssl_certfile="/app/certs/certs/client_elasticsearch-190712-0.cloudclusters.net_certificate.pem",
-            ssl_keyfile="/app/certs/certs/client_elasticsearch-190712-0.cloudclusters.net_key.pem",
+            ca_certs="./certs/ca_certificate.pem",
+            ssl_certfile="./certs/client_elasticsearch-190712-0.cloudclusters.net_certificate.pem",
+            ssl_keyfile="./certs/client_elasticsearch-190712-0.cloudclusters.net_key.pem",
             compatibility_mode=False,
             headers={"Content-Type": "application/json"}# Update path if needed
         )
